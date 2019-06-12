@@ -190,6 +190,8 @@ TOKEN: /* SQL Keywords. prefixed with K_ to avoid name clashes */
 |   <K_INTO:"INTO">
 |   <K_IS:"IS">
 |   <K_ISNULL:"ISNULL">
+|   <K_ISTRUE:"ISTRUE">
+|   <K_ISFALSE:"ISFALSE">
 |   <K_JOIN:"JOIN">
 |   <K_KEEP:"KEEP">
 |   <K_KEY:"KEY">
@@ -214,6 +216,8 @@ TOKEN: /* SQL Keywords. prefixed with K_ to avoid name clashes */
 |   <K_NOT:"NOT">
 |   <K_NOVALIDATE : "NOVALIDATE">
 |   <K_NULL:"NULL">
+|   <K_TRUE:"TRUE">
+|   <K_FALSE:"FALSE">
 |   <K_NULLS: "NULLS">
 |   <K_OF:"OF">
 |   <K_OFFSET:"OFFSET">
@@ -2251,6 +2255,8 @@ Expression SQLCondition():
     LOOKAHEAD(InExpression()) result=InExpression()
     | LOOKAHEAD(Between()) result=Between()
     | LOOKAHEAD(IsNullExpression()) result=IsNullExpression()
+    | LOOKAHEAD(IsTrueExpression()) result=IsTrueExpression()
+    | LOOKAHEAD(IsFalseExpression()) result=IsFalseExpression()
     | LOOKAHEAD(ExistsExpression()) result=ExistsExpression()
     |  result=LikeExpression()
     )
@@ -2330,6 +2336,36 @@ Expression IsNullExpression():
 {
     leftExpression=SimpleExpression() 
         (<K_ISNULL> { result.setUseIsNull(true); } | <K_IS> [<K_NOT> { result.setNot(true); } ] <K_NULL> )
+
+    {
+        result.setLeftExpression(leftExpression);
+        return result;
+    }
+}
+
+Expression IsTrueExpression():
+{
+    IsTrueExpression result = new IsTrueExpression();
+    Expression leftExpression = null;
+}
+{
+    leftExpression=SimpleExpression()
+        (<K_ISTRUE> { result.setUseIsTrue(true); } | <K_IS> [<K_NOT> { result.setNot(true); } ] <K_TRUE> )
+
+    {
+        result.setLeftExpression(leftExpression);
+        return result;
+    }
+}
+
+Expression IsFalseExpression():
+{
+    IsFalseExpression result = new IsFalseExpression();
+    Expression leftExpression = null;
+}
+{
+    leftExpression=SimpleExpression()
+        (<K_ISFALSE> { result.setUseIsFalse(true); } | <K_IS> [<K_NOT> { result.setNot(true); } ] <K_FALSE> )
 
     {
         result.setLeftExpression(leftExpression);
@@ -2690,6 +2726,10 @@ Expression PrimaryExpression() #PrimaryExpression:
     (
         <K_NULL> { retval = new NullValue(); }
 
+        | <K_TRUE> { retval = new TrueValue(); }
+
+        | <K_FALSE> { retval = new FalseValue(); }
+
         | retval=CaseWhenExpression()
 
         | retval = SimpleJdbcParameter()
@@ -2895,7 +2935,8 @@ AnalyticExpression AnalyticExpression(Function function) :
 {
     AnalyticExpression retval = new AnalyticExpression(function);
     ExpressionList expressionList = null;
-    List<OrderByElement> olist = null;
+    List<OrderByElement> olistgroup = null;
+    List<OrderByElement> olistover = null;
     Token token = null;
     Expression expr = null;
     Expression offset = null;
@@ -2915,13 +2956,22 @@ AnalyticExpression AnalyticExpression(Function function) :
 
     /* [ keep=KeepExpression() ] */
 
-    (<K_OVER> {retval.setType(AnalyticType.OVER);} 
-        | <K_WITHIN> <K_GROUP> {retval.setType(AnalyticType.WITHIN_GROUP);} )
+    (<K_OVER> {retval.setType(AnalyticType.OVER);}
+        | <K_WITHIN> <K_GROUP> {retval.setType(AnalyticType.WITHIN_GROUP);}
+            ["(" [olistgroup=OrderByElements() [windowElement = WindowElement() ]] ")"
+              [ <K_OVER> { retval.setType(AnalyticType.WITHIN_GROUP_OVER); }
+                "(" [<K_PARTITION> <K_BY> expressionList=SimpleExpressionList() ]
+                    [olistover=OrderByElements() [windowElement = WindowElement() ] ]
+                ")"
+              ]
+            ]
+    )
 
-    "("
+    ["("
         [<K_PARTITION> <K_BY> expressionList=SimpleExpressionList() ]
-        [olist=OrderByElements() [windowElement = WindowElement() ] ]
-        
+        [olistover=OrderByElements() [windowElement = WindowElement() ] ]
+     ")"
+    ]
     {
         //retval.setDistinct(distinct);
         //retval.setIgnoreNulls(ignoreNulls);
@@ -2930,10 +2980,10 @@ AnalyticExpression AnalyticExpression(Function function) :
         //retval.setDefaultValue(defaultValue);
         //retval.setKeep(keep);
         retval.setPartitionExpressionList(expressionList);
-        retval.setOrderByElements(olist);
+        retval.setOrderByOverElements(olistover);
+        retval.setOrderByGroupElements(olistgroup);
         retval.setWindowElement(windowElement);
     }
-    ")"
     {
         return retval;
     }
@@ -3183,6 +3233,7 @@ Function InternalFunction(Function retval) :
     ExpressionList expressionList = null;
     NamedExpressionList namedExpressionList = null;
     KeepExpression keep = null;
+    AllTableColumns allTableColumns = null;
     SubSelect expr = null;
     Token tk1 = null;
     Token tk2 = null;
@@ -3197,12 +3248,22 @@ Function InternalFunction(Function retval) :
         ( LOOKAHEAD(4)
             "*" { retval.setAllColumns(true); }
             |
+            LOOKAHEAD(AllTableColumns()) allTableColumns = AllTableColumns()
+              {
+                retval.setAllTableColumns(true);
+                retval.setAllTableColumns(allTableColumns);
+              }
+            |
+            LOOKAHEAD(Expression()) expr1 = Expression() { expressionList = new ExpressionList(expr1); }
+            |
+            LOOKAHEAD(Condition()) expr1 = Condition() { expressionList = new ExpressionList(expr1); }
+            |
 			namedExpressionList=NamedExpressionList1()
 			| 
 			LOOKAHEAD(NamedExpressionListExprFirst()) namedExpressionList = NamedExpressionListExprFirst()
 			| 
             LOOKAHEAD(3) expressionList=SimpleExpressionList()
-			|  
+			|
 			expr = SubSelect() { expr.setUseBrackets(false); expressionList = new ExpressionList(expr); } 
         )] 
         [ <K_IGNORE> <K_NULLS> {retval.setIgnoreNulls(true); }]

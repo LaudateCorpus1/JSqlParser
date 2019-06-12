@@ -46,6 +46,15 @@ public class ExpressionVisitorAdapter implements ExpressionVisitor, ItemsListVis
     }
 
     @Override
+    public void visit(FalseValue value) {
+
+    }
+    @Override
+    public void visit(TrueValue value) {
+
+    }
+
+    @Override
     public void visit(Function function) {
         if (function.getParameters() != null) {
             function.getParameters().accept(this);
@@ -173,6 +182,16 @@ public class ExpressionVisitorAdapter implements ExpressionVisitor, ItemsListVis
     }
 
     @Override
+    public void visit(IsTrueExpression expr) {
+        expr.getLeftExpression().accept(this);
+    }
+
+    @Override
+    public void visit(IsFalseExpression expr) {
+        expr.getLeftExpression().accept(this);
+    }
+
+    @Override
     public void visit(LikeExpression expr) {
         visitBinaryExpression(expr);
     }
@@ -295,7 +314,10 @@ public class ExpressionVisitorAdapter implements ExpressionVisitor, ItemsListVis
         if (expr.getKeep() != null) {
             expr.getKeep().accept(this);
         }
-        for (OrderByElement element : expr.getOrderByElements()) {
+        for (OrderByElement element : expr.getOrderByOverElements()) {
+            element.getExpression().accept(this);
+        }
+        for (OrderByElement element : expr.getOrderByGroupElements()) {
             element.getExpression().accept(this);
         }
 

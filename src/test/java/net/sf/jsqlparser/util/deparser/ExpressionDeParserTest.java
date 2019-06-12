@@ -170,7 +170,7 @@ public class ExpressionDeParserTest {
         OrderByElement orderByElement2 = mock(OrderByElement.class);
 
         analyticExpression.setName("name");
-        analyticExpression.setOrderByElements(orderByElements);
+        analyticExpression.setOrderByOverElements(orderByElements);
         orderByElements.add(orderByElement1);
         orderByElements.add(orderByElement2);
 
@@ -191,7 +191,7 @@ public class ExpressionDeParserTest {
         WindowElement windowElement = mock(WindowElement.class);
 
         analyticExpression.setName("name");
-        analyticExpression.setOrderByElements(orderByElements);
+        analyticExpression.setOrderByOverElements(orderByElements);
         analyticExpression.setWindowElement(windowElement);
         orderByElements.add(orderByElement1);
         orderByElements.add(orderByElement2);

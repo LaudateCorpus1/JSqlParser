@@ -11,44 +11,8 @@ package net.sf.jsqlparser.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.jsqlparser.expression.AllComparisonExpression;
-import net.sf.jsqlparser.expression.AnalyticExpression;
-import net.sf.jsqlparser.expression.AnyComparisonExpression;
-import net.sf.jsqlparser.expression.BinaryExpression;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.CastExpression;
-import net.sf.jsqlparser.expression.CollateExpression;
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
-import net.sf.jsqlparser.expression.DateValue;
-import net.sf.jsqlparser.expression.DoubleValue;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.ExtractExpression;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.HexValue;
-import net.sf.jsqlparser.expression.IntervalExpression;
-import net.sf.jsqlparser.expression.JdbcNamedParameter;
-import net.sf.jsqlparser.expression.JdbcParameter;
-import net.sf.jsqlparser.expression.JsonExpression;
-import net.sf.jsqlparser.expression.KeepExpression;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.MySQLGroupConcat;
-import net.sf.jsqlparser.expression.NextValExpression;
-import net.sf.jsqlparser.expression.NotExpression;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.NumericBind;
-import net.sf.jsqlparser.expression.OracleHierarchicalExpression;
-import net.sf.jsqlparser.expression.OracleHint;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.RowConstructor;
-import net.sf.jsqlparser.expression.SignedExpression;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.TimeKeyExpression;
-import net.sf.jsqlparser.expression.TimeValue;
-import net.sf.jsqlparser.expression.TimestampValue;
-import net.sf.jsqlparser.expression.UserVariable;
-import net.sf.jsqlparser.expression.ValueListExpression;
-import net.sf.jsqlparser.expression.WhenClause;
+
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseLeftShift;
@@ -62,25 +26,7 @@ import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.Between;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExistsExpression;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
-import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
-import net.sf.jsqlparser.expression.operators.relational.JsonOperator;
-import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
-import net.sf.jsqlparser.expression.operators.relational.Matches;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.NamedExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Block;
@@ -308,6 +254,14 @@ public class TablesNamesFinder implements SelectVisitor, FromItemVisitor, Expres
     }
 
     @Override
+    public void visit(IsTrueExpression isTrueExpression) {
+    }
+
+    @Override
+    public void visit(IsFalseExpression isFalseExpression) {
+    }
+
+    @Override
     public void visit(JdbcParameter jdbcParameter) {
     }
 
@@ -348,6 +302,15 @@ public class TablesNamesFinder implements SelectVisitor, FromItemVisitor, Expres
     @Override
     public void visit(NullValue nullValue) {
     }
+
+    @Override
+    public void visit(TrueValue trueValue) {
+    }
+
+    @Override
+    public void visit(FalseValue falseValue) {
+    }
+
 
     @Override
     public void visit(OrExpression orExpression) {

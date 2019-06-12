@@ -12,6 +12,8 @@ package net.sf.jsqlparser.expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.NamedExpressionList;
 import net.sf.jsqlparser.parser.ASTNodeAccessImpl;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.AllTableColumns;
 
 /**
  * A function as MAX,COUNT...
@@ -22,6 +24,8 @@ public class Function extends ASTNodeAccessImpl implements Expression {
     private ExpressionList parameters;
     private NamedExpressionList namedParameters;
     private boolean allColumns = false;
+    private boolean allTableColumns = false;
+    private AllTableColumns table;
     private boolean distinct = false;
     private boolean isEscaped = false;
     private Expression attribute;
@@ -46,8 +50,20 @@ public class Function extends ASTNodeAccessImpl implements Expression {
         return allColumns;
     }
 
+    public boolean isAllTableColumns() {
+        return allTableColumns;
+    }
+
     public void setAllColumns(boolean b) {
         allColumns = b;
+    }
+
+    public void setAllTableColumns(boolean b) {
+        allTableColumns = b;
+    }
+
+    public void setAllTableColumns(AllTableColumns t) {
+        table = t;
     }
 
     public boolean isIgnoreNulls() {
@@ -158,6 +174,8 @@ public class Function extends ASTNodeAccessImpl implements Expression {
             }
         } else if (isAllColumns()) {
             params = "(*)";
+        } else if( isAllTableColumns() ) {
+            params = "(" + table.toString() + ")";
         } else {
             params = "()";
         }

@@ -24,7 +24,7 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
  */
 public class AnalyticExpression extends ASTNodeAccessImpl implements Expression {
 
-    private final OrderByClause orderBy = new OrderByClause();
+    private final OrderByClause orderByOver = new OrderByClause();
     private final PartitionByClause partitionBy = new PartitionByClause();
     private String name;
     private Expression expression;
@@ -33,6 +33,7 @@ public class AnalyticExpression extends ASTNodeAccessImpl implements Expression 
     private boolean allColumns = false;
     private KeepExpression keep = null;
     private AnalyticType type = AnalyticType.OVER;
+    private final OrderByClause orderByGroup = new OrderByClause();
     private boolean distinct = false;
     private boolean ignoreNulls = false;
 
@@ -67,12 +68,19 @@ public class AnalyticExpression extends ASTNodeAccessImpl implements Expression 
         expressionVisitor.visit(this);
     }
 
-    public List<OrderByElement> getOrderByElements() {
-        return orderBy.getOrderByElements();
+    public List<OrderByElement> getOrderByOverElements() {
+        return orderByOver.getOrderByElements();
     }
 
-    public void setOrderByElements(List<OrderByElement> orderByElements) {
-        orderBy.setOrderByElements(orderByElements);
+    public void setOrderByOverElements(List<OrderByElement> orderByOverElements) {
+        orderByOver.setOrderByElements(orderByOverElements);
+    }
+    public List<OrderByElement> getOrderByGroupElements() {
+        return orderByGroup.getOrderByElements();
+    }
+
+    public void setOrderByGroupElements(List<OrderByElement> orderByGroupElements) {
+        orderByGroup.setOrderByElements(orderByGroupElements);
     }
 
     public KeepExpression getKeep() {
@@ -124,11 +132,11 @@ public class AnalyticExpression extends ASTNodeAccessImpl implements Expression 
     }
 
     public WindowElement getWindowElement() {
-        return orderBy.getWindowElement();
+        return orderByOver.getWindowElement();
     }
 
     public void setWindowElement(WindowElement windowElement) {
-        orderBy.setWindowElement(windowElement);
+        orderByOver.setWindowElement(windowElement);
     }
 
     public AnalyticType getType() {
@@ -183,6 +191,13 @@ public class AnalyticExpression extends ASTNodeAccessImpl implements Expression 
         }
 
         switch (type) {
+            case WITHIN_GROUP_OVER:
+                b.append("WITHIN GROUP");
+                b.append(" (");
+                orderByGroup.toStringOrderByElements(b);
+                b.append(") ");
+                b.append("OVER");
+                break;
             case WITHIN_GROUP:
                 b.append("WITHIN GROUP");
                 break;
@@ -192,7 +207,7 @@ public class AnalyticExpression extends ASTNodeAccessImpl implements Expression 
         b.append(" (");
 
         partitionBy.toStringPartitionBy(b);
-        orderBy.toStringOrderByElements(b);
+        orderByOver.toStringOrderByElements(b);
 
         b.append(")");
 
