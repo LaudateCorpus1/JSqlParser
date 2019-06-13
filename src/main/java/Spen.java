@@ -19,9 +19,9 @@ public class Spen {
 
   static HashMap<String, String> parseQ() {
     HashMap<String, String> strs = new HashMap<>();
-    File f = new File("/Users/spencer/repos/chartio/dashboards/nitro-perk-drilldown/gend");
+    File f = new File("/home/spen/repos/chartio/dashboards/company-kpis-rwg/gend");
     for (File q : f.listFiles()) {
-      if( !q.getName().contains("5208094") ) continue;
+      if( !q.getName().contains("3363843") ) continue;
       if( q.getName().contains("~") ) continue;
       try (BufferedReader br = new BufferedReader(new FileReader(q))) {
         StringBuilder sb = new StringBuilder();
@@ -53,7 +53,7 @@ public class Spen {
 //      try {
 //        String query = queries.get(qn);
 //        Statements stmt = CCJSqlParserUtil.parseStatements(query);
-//        System.out.println(stmt);
+////        System.out.println(stmt);
 //      } catch(Exception e) {
 //        e.printStackTrace();
 //        System.out.println("Failed on number " + qn);
@@ -65,7 +65,7 @@ public class Spen {
 //
 //    System.out.println("All queries parse " + i + ".");
 
-    String q2 = "select foo(arg1, arg2) from bar;"; // bool_or(datediff(days, prior_launch, timestamp) >= 30 OR prior_launch is null) as redeemed_perk from foo p;";
+    String q2 = "select * from foo where user_id in (1=1 AND NOT 1!=1)";
     Statements stmt = CCJSqlParserUtil.parseStatements(q2);
     System.out.println("asdf");
   }

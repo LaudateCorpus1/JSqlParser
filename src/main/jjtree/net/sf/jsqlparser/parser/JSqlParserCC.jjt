@@ -3042,12 +3042,15 @@ ExtractExpression ExtractExpression() :
 {
     ExtractExpression retval = new ExtractExpression();
     String token = null;
+    Token t = null;
     Expression expr = null;
 }
 {
     <K_EXTRACT>
     "("
-        token=RelObjectName() { retval.setName(token); }
+        (token=RelObjectName() { retval.setName(token); }
+        |t=<S_CHAR_LITERAL> { retval.setName(t.toString()); }
+        )
         <K_FROM>
         expr=SimpleExpression() { retval.setExpression(expr); }
     ")"
@@ -3238,6 +3241,7 @@ Function InternalFunction(Function retval) :
     Token tk1 = null;
     Token tk2 = null;
     Expression expr1 = null;
+    Expression x = null;
     boolean ignoreNulls = false;
 }
 {
@@ -3253,6 +3257,8 @@ Function InternalFunction(Function retval) :
                 retval.setAllTableColumns(true);
                 retval.setAllTableColumns(allTableColumns);
               }
+            |
+            LOOKAHEAD(SimpleExpressionListAtLeastTwoItems()) expressionList = SimpleExpressionListAtLeastTwoItems()
             |
             LOOKAHEAD(Expression()) expr1 = Expression() { expressionList = new ExpressionList(expr1); }
             |
