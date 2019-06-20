@@ -634,7 +634,7 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
             case WITHIN_GROUP_OVER:
                 buffer.append("WITHIN GROUP");
                 buffer.append(" (");
-                if( orderByGroupElements!= null && !orderByGroupElements.isEmpty() ) {
+                if ( orderByGroupElements!= null && !orderByGroupElements.isEmpty() ) {
                     buffer.append("ORDER BY ");
                     buffer.append("ORDER BY ");
                     orderByDeParser.setExpressionVisitor(this);

@@ -12,7 +12,6 @@ package net.sf.jsqlparser.expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.NamedExpressionList;
 import net.sf.jsqlparser.parser.ASTNodeAccessImpl;
-import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
 
 /**
@@ -174,7 +173,7 @@ public class Function extends ASTNodeAccessImpl implements Expression {
             }
         } else if (isAllColumns()) {
             params = "(*)";
-        } else if( isAllTableColumns() ) {
+        } else if ( isAllTableColumns() ) {
             params = "(" + table.toString() + ")";
         } else {
             params = "()";

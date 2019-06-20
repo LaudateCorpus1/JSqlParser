@@ -1336,7 +1336,7 @@ SelectExpressionItem SelectExpressionItem():
     Alias alias = null;
 }
 {
-     expression=SimpleExpression() { selectExpressionItem = new SelectExpressionItem(); selectExpressionItem.setExpression(expression); }
+     expression=Expression() { selectExpressionItem = new SelectExpressionItem(); selectExpressionItem.setExpression(expression); }
              [alias=Alias() { selectExpressionItem.setAlias(alias); }] { return selectExpressionItem; }
 }
 
@@ -2269,6 +2269,7 @@ Expression InExpression() #InExpression :
     ItemsList leftItemsList = null;
     ItemsList rightItemsList = null;
     Expression leftExpression = null;
+    Expression rightExpression = null;
 }
 {
     ( LOOKAHEAD(3) "(" (
@@ -2282,7 +2283,13 @@ Expression InExpression() #InExpression :
         leftExpression=SimpleExpression() { result.setLeftExpression(leftExpression); }
         [ "(" "+" ")" { result.setOldOracleJoinSyntax(EqualsTo.ORACLE_JOIN_RIGHT); } ]
     )
-    [<K_NOT> { result.setNot(true); } ] <K_IN> "(" (LOOKAHEAD(3) rightItemsList=SubSelect() | rightItemsList=SimpleExpressionList() ) ")"
+    [<K_NOT> { result.setNot(true); } ]
+    <K_IN> "("
+    ( LOOKAHEAD(3) rightItemsList=SubSelect()
+    | LOOKAHEAD(SQLExpressionList()) rightItemsList=SQLExpressionList()
+    | rightItemsList=SimpleExpressionList()
+    | LOOKAHEAD(Expression()) rightExpression = Expression() { rightItemsList = new ExpressionList(rightExpression); }
+    ) ")"
     {
         result.setRightItemsList(rightItemsList);
         linkAST(result,jjtThis);
@@ -2863,7 +2870,11 @@ DateTimeLiteralExpression DateTimeLiteralExpression() : {
 } {
     t=<K_DATETIMELITERAL>  { expr.setType(DateTimeLiteralExpression.DateTime.valueOf(t.image.toUpperCase())); }
     
-    t=<S_CHAR_LITERAL> { expr.setValue(t.image); return expr; }
+    ( t=<S_CHAR_LITERAL>
+    | t=<S_IDENTIFIER>
+    | t=<S_QUOTED_IDENTIFIER>
+    )
+    { expr.setValue(t.image); return expr; }
 }
 
 JsonExpression JsonExpression() : {
