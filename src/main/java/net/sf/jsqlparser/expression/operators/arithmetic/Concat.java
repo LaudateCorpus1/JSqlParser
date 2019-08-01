@@ -13,6 +13,11 @@ import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 
 public class Concat extends BinaryExpression {
+    private boolean useConcatKeyword = true;
+
+    public void setUseConcatKeyword(boolean useConcatKeyword) {
+        this.useConcatKeyword = useConcatKeyword;
+    }
 
     @Override
     public void accept(ExpressionVisitor expressionVisitor) {
@@ -22,5 +27,12 @@ public class Concat extends BinaryExpression {
     @Override
     public String getStringExpression() {
         return "||";
+    }
+
+    @Override public String toString() {
+        if ( useConcatKeyword ) {
+            return "CONCAT(" + getLeftExpression() + ", " + getRightExpression() + ")";
+        }
+        return super.toString();
     }
 }

@@ -65,6 +65,10 @@ public class Function extends ASTNodeAccessImpl implements Expression {
         table = t;
     }
 
+    public AllTableColumns getAllTableColumns() {
+        return table;
+    }
+
     public boolean isIgnoreNulls() {
         return ignoreNulls;
     }

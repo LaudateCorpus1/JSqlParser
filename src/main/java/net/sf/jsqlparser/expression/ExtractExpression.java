@@ -20,6 +20,7 @@ import net.sf.jsqlparser.parser.ASTNodeAccessImpl;
 public class ExtractExpression extends ASTNodeAccessImpl implements Expression {
 
     private String name;
+    private String toStr;
     private Expression expression;
 
     @Override
@@ -43,8 +44,16 @@ public class ExtractExpression extends ASTNodeAccessImpl implements Expression {
         this.expression = expression;
     }
 
+    public void setToString(String s) {
+        toStr = s;
+    }
+
     @Override
     public String toString() {
+        // ultra hack (SPA)
+        if ( toStr!=null ) {
+          return toStr;
+        }
         return "EXTRACT(" + name + " FROM " + expression + ')';
     }
 }
