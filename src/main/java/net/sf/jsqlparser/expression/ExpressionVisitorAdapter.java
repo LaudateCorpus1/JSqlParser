@@ -314,13 +314,16 @@ public class ExpressionVisitorAdapter implements ExpressionVisitor, ItemsListVis
         if (expr.getKeep() != null) {
             expr.getKeep().accept(this);
         }
-        for (OrderByElement element : expr.getOrderByOverElements()) {
-            element.getExpression().accept(this);
+        if (expr.getOrderByOverElements()!=null) {
+            for (OrderByElement element : expr.getOrderByOverElements()) {
+                element.getExpression().accept(this);
+            }
         }
-        for (OrderByElement element : expr.getOrderByGroupElements()) {
-            element.getExpression().accept(this);
+        if (expr.getOrderByGroupElements()!=null ) {
+            for (OrderByElement element : expr.getOrderByGroupElements()) {
+                element.getExpression().accept(this);
+            }
         }
-
         if (expr.getWindowElement() != null) {
             expr.getWindowElement().getRange().getStart().getExpression().accept(this);
             expr.getWindowElement().getRange().getEnd().getExpression().accept(this);

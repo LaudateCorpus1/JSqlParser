@@ -18,8 +18,16 @@ import net.sf.jsqlparser.parser.ASTNodeAccessImpl;
  */
 public final class StringValue extends ASTNodeAccessImpl implements Expression {
 
+    public enum QUOTE_STYLE {
+        SINGLE("'"), DOUBLE("\"");
+        final String style;
+        QUOTE_STYLE(String c) {
+            style = c;
+        }
+    }
     private String value = "";
     private String prefix = null;
+    private QUOTE_STYLE quoteStyle = QUOTE_STYLE.SINGLE;
 
     public static final List<String> ALLOWED_PREFIXES = Arrays.asList("N", "U", "E", "R", "B", "RB", "_utf8");
 
@@ -71,6 +79,10 @@ public final class StringValue extends ASTNodeAccessImpl implements Expression {
         this.prefix = prefix;
     }
 
+    public void setQuoteStyle(QUOTE_STYLE quoteStyle) {
+        this.quoteStyle = quoteStyle;
+    }
+
     @Override
     public void accept(ExpressionVisitor expressionVisitor) {
         expressionVisitor.visit(this);
@@ -78,6 +90,6 @@ public final class StringValue extends ASTNodeAccessImpl implements Expression {
 
     @Override
     public String toString() {
-        return (prefix != null ? prefix : "") + "'" + value + "'";
+        return (prefix != null ? prefix : "") + (quoteStyle.style) + value + (quoteStyle.style);
     }
 }
